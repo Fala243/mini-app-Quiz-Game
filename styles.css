@@ -1,0 +1,801 @@
+/* =========================================================
+   GENERAL KNOWLEDGE CHALLENGE - STYLES
+   Mobile-first: base styles target small screens, and the
+   single media query at the bottom (768px) upgrades the layout
+   for tablets and desktops.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. DESIGN TOKENS (CSS VARIABLES)
+   Change a color or size here and it updates everywhere.
+   --------------------------------------------------------- */
+:root {
+  /* Backgrounds */
+  --color-bg: #0b1426;            /* dark navy page background */
+  --color-surface: #13203a;       /* card background */
+  --color-surface-raised: #1b2b4b;/* buttons / inputs on cards */
+  --color-border: #2a3d63;
+
+  /* Text */
+  --color-text: #ffffff;
+  --color-text-muted: #a9b8d6;
+
+  /* Accent (electric blue) */
+  --color-accent: #2f8bff;
+  --color-accent-hover: #5aa4ff;
+  --color-accent-glow: rgba(47, 139, 255, 0.35);
+  /* Darker blues for solid buttons, so white text is easy to read
+     (meets the WCAG AA 4.5:1 contrast guideline) */
+  --color-accent-strong: #1f6fe0;
+  --color-accent-strong-hover: #1a5fc4;
+
+  /* Feedback colors */
+  --color-correct: #22c55e;
+  --color-correct-bg: rgba(34, 197, 94, 0.15);
+  --color-incorrect: #ef4444;
+  --color-incorrect-bg: rgba(239, 68, 68, 0.15);
+  --color-master: #facc15;        /* gold for a perfect score */
+  --color-master-bg: rgba(250, 204, 21, 0.12);
+  --color-warning: #f59e0b;       /* timer running low */
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  /* Spacing scale */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  /* Typography: modern system font stack (no downloads needed) */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Animation speed */
+  --transition: 0.2s ease;
+}
+
+
+/* ---------------------------------------------------------
+   2. RESET AND BASE STYLES
+   --------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* IMPORTANT: keep elements with the "hidden" attribute hidden,
+   even if another rule below gives them display: flex or grid. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;         /* header, main, footer stacked */
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle at top, #16274a 0%, var(--color-bg) 60%);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+/* Hides content visually but keeps it readable by screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ---------------------------------------------------------
+   3. HEADER AND FOOTER
+   --------------------------------------------------------- */
+.site-header {
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+  text-align: center;
+}
+
+.game-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+/* Electric-blue underline accent below the title */
+.game-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  margin: var(--space-xs) auto 0;
+  border-radius: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+.game-tagline {
+  margin-top: var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.site-footer {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+
+/* ---------------------------------------------------------
+   4. MAIN LAYOUT AND SCREEN CARDS
+   Each screen is a centered, rounded card.
+   --------------------------------------------------------- */
+.app {
+  flex: 1;                        /* pushes footer to the bottom */
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  animation: fade-in 0.35s ease;
+}
+
+.screen-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;        /* long names wrap instead of overflowing */
+}
+
+.screen-intro {
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* The player's name is highlighted in electric blue */
+.player-name {
+  color: var(--color-accent);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ---------------------------------------------------------
+   5. BUTTONS (shared styles)
+   --------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;               /* comfortable touch target */
+  padding: var(--space-sm) var(--space-lg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition),
+              transform var(--transition), box-shadow var(--transition);
+}
+
+/* Primary: solid electric blue (Continue, Start Quiz, Play Again) */
+.btn-primary {
+  width: 100%;
+  background: var(--color-accent-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-button), 0 0 0 0 var(--color-accent-glow);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary: outlined (Next Question) */
+.btn-secondary {
+  width: 100%;
+  background: transparent;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Hover effects only on devices with a real mouse/trackpad.
+   On touch screens, :hover "sticks" after a tap, which would make
+   a button look highlighted on the next question. */
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--color-accent-strong-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-button), 0 0 20px var(--color-accent-glow);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-accent-glow);
+    color: var(--color-text);
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    background: #213560;
+    transform: translateY(-2px);
+  }
+
+  .form-input:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+/* Pressed feedback that also works on touch screens */
+.answer-btn:active:not(:disabled) {
+  border-color: var(--color-accent);
+  background: #213560;
+}
+
+/* Disabled buttons (e.g. answers after one is chosen) */
+.btn:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ---------------------------------------------------------
+   6. ACCESSIBLE FOCUS STATES
+   A clear outline appears when navigating with the keyboard.
+   --------------------------------------------------------- */
+.btn:focus-visible,
+.form-input:focus-visible {
+  outline: 3px solid var(--color-accent-hover);
+  outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------
+   7. PLAYER REGISTRATION FORM
+   --------------------------------------------------------- */
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+/* Full-width name field */
+.form-input {
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1.05rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.form-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-glow);
+}
+
+/* Red border when JavaScript marks the input as invalid */
+.form-input[aria-invalid="true"] {
+  border-color: var(--color-incorrect);
+}
+
+.form-error {
+  color: var(--color-incorrect);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Extra space above the prominent Continue button */
+#register-btn {
+  margin-top: var(--space-sm);
+  font-size: 1.1rem;
+}
+
+
+/* ---------------------------------------------------------
+   8. WELCOME SCREEN
+   --------------------------------------------------------- */
+.welcome-screen .screen-heading {
+  font-size: 1.75rem;
+}
+
+/* Rules list shown as small cards with a blue check marker */
+.quiz-rules {
+  display: grid;
+  gap: var(--space-sm);
+  list-style: none;
+}
+
+.quiz-rules li {
+  position: relative;
+  padding: var(--space-sm) var(--space-md) var(--space-sm) 2.5rem;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
+.quiz-rules li::before {
+  content: "\2713";               /* check mark */
+  position: absolute;
+  left: var(--space-md);
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.quiz-rules strong {
+  color: var(--color-text);
+}
+
+
+/* ---------------------------------------------------------
+   9. QUIZ STATUS BAR (question number, score, timer)
+   --------------------------------------------------------- */
+.quiz-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+}
+
+.quiz-status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* The number part of each status item (e.g. "3 of 10", "40", "12s") */
+.status-value {
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;            /* keep "3 of 10" on one line */
+}
+
+#current-score {
+  color: var(--color-accent);
+}
+
+/* Countdown timer: large blue number */
+.timer {
+  font-size: 1.75rem;             /* large enough to read at a glance on phones */
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums; /* digits don't shift width */
+  color: var(--color-accent);
+  transition: color var(--transition);
+}
+
+/* JS adds "timer-warning" when 5 seconds or less remain: red and pulsing */
+.timer.timer-warning {
+  color: var(--color-incorrect);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Add class "timer-expired" in JS when time runs out */
+.timer.timer-expired {
+  color: var(--color-incorrect);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+
+/* ---------------------------------------------------------
+   10. PROGRESS INDICATOR
+   The <progress> element is styled for each browser engine.
+   --------------------------------------------------------- */
+.quiz-progress {
+  width: 100%;
+  height: 10px;
+  border: none;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--color-surface-raised);
+}
+
+/* Chrome, Edge, Safari: track and fill */
+.quiz-progress::-webkit-progress-bar {
+  background: var(--color-surface-raised);
+  border-radius: 999px;
+}
+
+.quiz-progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Firefox: fill */
+.quiz-progress::-moz-progress-bar {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  border-radius: 999px;
+}
+
+
+/* ---------------------------------------------------------
+   11. QUESTION CARD AND ANSWER BUTTONS
+   --------------------------------------------------------- */
+.question-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Small pill showing the category, e.g. "Geography" */
+.question-category {
+  align-self: flex-start;
+  padding: 0.2rem var(--space-sm);
+  background: var(--color-accent-glow);
+  color: var(--color-accent-hover);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.question-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* JS moves focus to the question (for screen readers). It is not
+   a button, so no focus outline is needed here. */
+.question-text:focus {
+  outline: none;
+}
+
+/* Answers: one column on mobile, two columns at 768px+ */
+.answer-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+}
+
+.answer-btn {
+  justify-content: flex-start;    /* left-align answer text */
+  gap: var(--space-xs);           /* space between text and the check/cross mark */
+  width: 100%;
+  min-height: 56px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  text-align: left;
+  box-shadow: var(--shadow-button);
+}
+
+/* JS adds "correct" to the right answer -> green */
+.answer-btn.correct {
+  background: var(--color-correct-bg);
+  border-color: var(--color-correct);
+  color: var(--color-text);
+}
+
+.answer-btn.correct::after {
+  content: "\2713";               /* check mark */
+  margin-left: auto;
+  color: var(--color-correct);
+  font-weight: 700;
+}
+
+/* JS adds "incorrect" to a wrong chosen answer -> red */
+.answer-btn.incorrect {
+  background: var(--color-incorrect-bg);
+  border-color: var(--color-incorrect);
+  color: var(--color-text);
+}
+
+.answer-btn.incorrect::after {
+  content: "\2717";               /* cross mark */
+  margin-left: auto;
+  color: var(--color-incorrect);
+  font-weight: 700;
+}
+
+/* Dim the other answers once one is selected */
+.answer-btn:disabled:not(.correct):not(.incorrect) {
+  opacity: 0.5;
+}
+
+/* Feedback text below the answers */
+.answer-feedback {
+  min-height: 1.6em;              /* reserve space so layout doesn't jump */
+  font-weight: 600;
+  text-align: center;
+}
+
+/* JS adds one of these classes to color the feedback */
+.answer-feedback.correct {
+  color: var(--color-correct);
+}
+
+.answer-feedback.incorrect {
+  color: var(--color-incorrect);
+}
+
+
+/* ---------------------------------------------------------
+   12. RESULTS SCREEN
+   --------------------------------------------------------- */
+/* Final score and percentage shown as two stat tiles */
+.results-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+}
+
+.results-item {
+  padding: var(--space-md);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.results-item span {
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+#final-percentage {
+  color: var(--color-accent);
+}
+
+/* Performance message (base style) */
+.performance-message {
+  overflow-wrap: anywhere;        /* long names wrap instead of overflowing */
+  padding: var(--space-md) var(--space-lg);
+  border-left: 5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Hide the box until JavaScript adds a message */
+.performance-message:empty {
+  display: none;
+}
+
+/* 100% -> JS adds class "message-master" (gold) */
+.performance-message.message-master {
+  border-left-color: var(--color-master);
+  background: var(--color-master-bg);
+  color: var(--color-master);
+}
+
+/* 70-99% -> JS adds class "message-pass" (green) */
+.performance-message.message-pass {
+  border-left-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+
+/* Below 70% -> JS adds class "message-fail" (red) */
+.performance-message.message-fail {
+  border-left-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: #fca5a5;                 /* lighter red for easier reading */
+}
+
+
+/* ---------------------------------------------------------
+   13. REVIEW OF INCORRECT ANSWERS
+   --------------------------------------------------------- */
+.review-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.review-heading {
+  font-size: 1.15rem;
+}
+
+.review-list {
+  display: grid;
+  gap: var(--space-sm);
+  list-style: none;
+  counter-reset: review;          /* custom numbering */
+}
+
+.review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: var(--space-md);
+  background: var(--color-surface-raised);
+  border-left: 4px solid var(--color-incorrect);
+  border-radius: var(--radius-md);
+  counter-increment: review;
+}
+
+.review-question {
+  font-weight: 600;
+}
+
+.review-question::before {
+  content: counter(review) ". ";
+  color: var(--color-accent);
+}
+
+.review-your-answer,
+.review-correct-answer {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.review-your-answer-text {
+  color: var(--color-incorrect);
+  font-weight: 600;
+}
+
+.review-correct-answer-text {
+  color: var(--color-correct);
+  font-weight: 600;
+}
+
+.no-mistakes-message {
+  padding: var(--space-md);
+  background: var(--color-correct-bg);
+  border-radius: var(--radius-md);
+  color: var(--color-correct);
+  text-align: center;
+  font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   14. RESPONSIVE BREAKPOINT (768px and wider)
+   Tablets and desktops get more space and multi-column grids.
+   --------------------------------------------------------- */
+@media (min-width: 768px) {
+  .site-header {
+    padding-top: 3.5rem;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+  }
+
+  .game-tagline {
+    font-size: 1.05rem;
+  }
+
+  .screen {
+    padding: var(--space-xl);
+    gap: var(--space-xl);
+  }
+
+  .screen-heading {
+    font-size: 1.85rem;
+  }
+
+  .welcome-screen .screen-heading {
+    font-size: 2.1rem;
+  }
+
+  /* Status items become a single row of label + value */
+  .quiz-status-item {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+  }
+
+  .question-text {
+    font-size: 1.5rem;
+  }
+
+  /* Answers in a 2 x 2 grid */
+  .answer-buttons {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+
+  /* Score and percentage side by side */
+  .results-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Main action buttons no longer stretch full width */
+  .welcome-screen .btn-primary,
+  .results-screen .btn-primary,
+  .btn-secondary {
+    width: auto;
+    min-width: 220px;
+    align-self: center;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   15. REDUCED MOTION
+   Respect users who prefer fewer animations.
+   --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

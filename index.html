@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic page settings -->
+  <meta charset="UTF-8">
+  <!-- Makes the page scale correctly on phones and tablets -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="General Knowledge Challenge - a 10-question multiple-choice quiz game.">
+  <title>General Knowledge Challenge</title>
+
+  <!-- Link to the stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- =========================================================
+       HEADER
+       Shows the game title on every screen.
+       ========================================================= -->
+  <header class="site-header">
+    <h1 class="game-title">General Knowledge Challenge</h1>
+    <p class="game-tagline">Test yourself on geography, history, science, sports, and more!</p>
+  </header>
+
+  <!-- =========================================================
+       MAIN CONTENT
+       Contains the four screens of the game. Only ONE screen is
+       visible at a time. The "hidden" attribute hides a screen;
+       JavaScript will add/remove it to switch between screens.
+       ========================================================= -->
+  <main id="app" class="app">
+
+    <!-- ---------------------------------------------------------
+         SCREEN 1: PLAYER REGISTRATION (visible on page load)
+         The player types their name before they can continue.
+         --------------------------------------------------------- -->
+    <section id="registration-screen" class="screen registration-screen" aria-labelledby="registration-heading">
+      <h2 id="registration-heading" class="screen-heading">Player Registration</h2>
+      <p class="screen-intro">Enter your name to get started.</p>
+
+      <!-- The form lets the player press Enter or click the button -->
+      <form id="registration-form" class="registration-form" novalidate>
+        <!-- The label's "for" matches the input's "id" for accessibility -->
+        <label for="player-name-input" class="form-label">Your name</label>
+        <input
+          type="text"
+          id="player-name-input"
+          class="form-input"
+          name="playerName"
+          placeholder="e.g. Alex"
+          maxlength="30"
+          autocomplete="given-name"
+          required
+          aria-describedby="player-name-error"
+        >
+
+        <!-- Error message shown by JavaScript if the name is empty -->
+        <p id="player-name-error" class="form-error" role="alert" hidden>
+          Please enter your name to continue.
+        </p>
+
+        <button type="submit" id="register-btn" class="btn btn-primary">Continue</button>
+      </form>
+    </section>
+
+    <!-- ---------------------------------------------------------
+         SCREEN 2: WELCOME (hidden on page load)
+         Greets the player by name and offers the Start Quiz button.
+         --------------------------------------------------------- -->
+    <section id="welcome-screen" class="screen welcome-screen" aria-labelledby="welcome-heading" hidden>
+      <!-- JavaScript will fill in the player's name inside the <span> -->
+      <h2 id="welcome-heading" class="screen-heading">
+        Welcome, <span id="welcome-player-name" class="player-name">Player</span>!
+      </h2>
+
+      <!-- Short instructions so the player knows what to expect -->
+      <ul class="quiz-rules">
+        <li>You will answer <strong>10</strong> random multiple-choice questions.</li>
+        <li>Topics: geography, history, science, sports, and general knowledge.</li>
+        <li>You have <strong>15 seconds</strong> to answer each question.</li>
+        <li>Score <strong>70%</strong> or higher to pass.</li>
+      </ul>
+
+      <button type="button" id="start-quiz-btn" class="btn btn-primary">Start Quiz</button>
+    </section>
+
+    <!-- ---------------------------------------------------------
+         SCREEN 3: QUIZ (hidden on page load)
+         Shows one question at a time with four answer buttons.
+         --------------------------------------------------------- -->
+    <section id="quiz-screen" class="screen quiz-screen" aria-labelledby="question-text" hidden>
+
+      <!-- Status bar: question number, score, and timer.
+           Each item has a label and a value, so the label can sit
+           above the value on phones and beside it on larger screens. -->
+      <div class="quiz-status">
+        <!-- Question counter, e.g. "Question 3 of 10" -->
+        <p class="quiz-status-item question-counter">
+          <span class="status-label">Question</span>
+          <span class="status-value"><span id="current-question-number">1</span> of <span id="total-questions">10</span></span>
+        </p>
+
+        <!-- Current score -->
+        <p class="quiz-status-item score-display">
+          <span class="status-label">Score</span>
+          <span class="status-value"><span id="current-score">0</span></span>
+        </p>
+
+        <!-- 15-second countdown timer.
+             aria-live="off" stops screen readers announcing every second;
+             the "Time's up!" message is announced by #answer-feedback instead. -->
+        <p class="quiz-status-item timer-display">
+          <span class="status-label">Time left</span>
+          <span class="status-value"><span id="timer" class="timer" aria-live="off">15</span>s</span>
+        </p>
+      </div>
+
+      <!-- Progress indicator: fills up as the player moves through the quiz -->
+      <div class="progress-wrapper">
+        <label for="quiz-progress" class="visually-hidden">Quiz progress</label>
+        <progress id="quiz-progress" class="quiz-progress" value="0" max="10">0 of 10</progress>
+      </div>
+
+      <!-- The question card -->
+      <article class="question-card">
+        <!-- Category label, e.g. "Geography" (filled by JavaScript) -->
+        <p id="question-category" class="question-category">Category</p>
+
+        <!-- The question text (filled by JavaScript).
+             tabindex="-1" lets JavaScript move focus here on each new
+             question so screen readers read the question aloud. -->
+        <h2 id="question-text" class="question-text" tabindex="-1">Question text will appear here.</h2>
+
+        <!-- Four answer buttons. data-index tells JavaScript which option was clicked. -->
+        <div id="answer-buttons" class="answer-buttons" role="group" aria-labelledby="question-text">
+          <button type="button" class="btn answer-btn" data-index="0">Answer A</button>
+          <button type="button" class="btn answer-btn" data-index="1">Answer B</button>
+          <button type="button" class="btn answer-btn" data-index="2">Answer C</button>
+          <button type="button" class="btn answer-btn" data-index="3">Answer D</button>
+        </div>
+
+        <!-- Feedback after answering, e.g. "Correct!" or "Time's up!".
+             aria-live="polite" lets screen readers announce it. -->
+        <p id="answer-feedback" class="answer-feedback" aria-live="polite"></p>
+      </article>
+
+      <!-- Moves to the next question (shown by JavaScript after an answer) -->
+      <button type="button" id="next-question-btn" class="btn btn-secondary" hidden>Next Question</button>
+    </section>
+
+    <!-- ---------------------------------------------------------
+         SCREEN 4: RESULTS (hidden on page load)
+         Shows the final score, percentage, a personalized message,
+         and a review of any questions answered incorrectly.
+         --------------------------------------------------------- -->
+    <section id="results-screen" class="screen results-screen" aria-labelledby="results-heading" hidden>
+      <h2 id="results-heading" class="screen-heading">
+        Quiz Complete, <span id="results-player-name" class="player-name">Player</span>!
+      </h2>
+
+      <!-- Score summary -->
+      <div class="results-summary">
+        <p class="results-item">
+          Final score: <span id="final-score">0</span> / <span id="final-total">100</span>
+        </p>
+        <p class="results-item">
+          Percentage: <span id="final-percentage">0</span>%
+        </p>
+      </div>
+
+      <!--
+        PERFORMANCE MESSAGE
+        JavaScript will choose ONE of the messages below based on the
+        player's percentage, replace {name} with the player's name,
+        and place the result inside this paragraph.
+
+          100%        -> data-msg-master
+          70% - 99%   -> data-msg-pass
+          Below 70%   -> data-msg-fail
+      -->
+      <p
+        id="performance-message"
+        class="performance-message"
+        data-msg-master="{name}, outstanding! You're a General Knowledge Master!"
+        data-msg-pass="{name}, congratulations! You passed the challenge!"
+        data-msg-fail="{name}, good effort! Keep practicing, and you'll improve your general knowledge!"
+      ></p>
+
+      <!-- Review of incorrect answers -->
+      <section id="review-section" class="review-section" aria-labelledby="review-heading">
+        <h3 id="review-heading" class="review-heading">Review Your Mistakes</h3>
+
+        <!-- JavaScript will add one <li> per incorrectly answered question -->
+        <ol id="review-list" class="review-list"></ol>
+
+        <!-- Shown instead of the list when every answer was correct -->
+        <p id="no-mistakes-message" class="no-mistakes-message" hidden>
+          Perfect! You didn't miss a single question.
+        </p>
+      </section>
+
+      <!--
+        REVIEW ITEM TEMPLATE
+        A <template> is not displayed on the page. JavaScript can copy
+        it to build each review item for an incorrect answer.
+      -->
+      <template id="review-item-template">
+        <li class="review-item">
+          <p class="review-question"></p>
+          <p class="review-your-answer">Your answer: <span class="review-your-answer-text"></span></p>
+          <p class="review-correct-answer">Correct answer: <span class="review-correct-answer-text"></span></p>
+        </li>
+      </template>
+
+      <button type="button" id="play-again-btn" class="btn btn-primary">Play Again</button>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+  <footer class="site-footer">
+    <p>&copy; 2026 General Knowledge Challenge</p>
+  </footer>
+
+  <!-- JavaScript file with the game logic.
+       "defer" makes sure the HTML loads before the script runs. -->
+  <script src="script.js" defer></script>
+</body>
+</html>
