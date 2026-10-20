@@ -920,3 +920,221 @@ document.addEventListener("keydown", function (event) {
     event.preventDefault();
   }
 });
+
+
+/* =========================================================
+   17. KNOWLEDGE EXPLORER - POKEMON EDITION
+   A separate learning tool that looks up live Pokémon data
+   from the free PokeAPI. It does not touch any quiz variables,
+   so players can use it at any time without affecting the quiz.
+   ========================================================= */
+
+// Base address of the API. The Pokémon name is added to the end.
+const POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/";
+
+// Elements for the explorer section
+const pokemonInput = document.getElementById("pokemon-input");
+const pokemonSearchBtn = document.getElementById("pokemon-search-btn");
+const pokemonStatus = document.getElementById("pokemon-status");
+const pokemonResult = document.getElementById("pokemon-result");
+
+// true while a request is running. Used to block duplicate searches.
+let isSearching = false;
+
+
+/* ---------------------------------------------------------
+   17a. SMALL HELPERS
+   --------------------------------------------------------- */
+
+// Show a message under the search box.
+// isError = true makes the message red.
+function setPokemonStatus(message, isError) {
+  pokemonStatus.textContent = message;
+  pokemonStatus.classList.toggle("is-error", Boolean(isError));
+}
+
+// "bulbasaur" -> "Bulbasaur", "mr-mime" -> "Mr Mime"
+function capitalizeName(name) {
+  return name
+    .split("-")
+    .map(function (word) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+// Find one base stat (e.g. "hp") in the API's stats array.
+// Each item looks like: { base_stat: 45, stat: { name: "hp" } }
+function getBaseStat(stats, statName) {
+  const found = stats.find(function (item) {
+    return item.stat.name === statName;
+  });
+  return found ? found.base_stat : "N/A";
+}
+
+// Turn on/off the "loading" state of the controls
+function setLoading(loading) {
+  isSearching = loading;
+  pokemonSearchBtn.disabled = loading;
+  pokemonSearchBtn.textContent = loading ? "Searching..." : "Search";
+  pokemonResult.setAttribute("aria-busy", String(loading));
+}
+
+
+/* ---------------------------------------------------------
+   17b. BUILD THE POKEMON CARD (DOM UPDATE)
+   We create elements with createElement and fill them with
+   textContent. textContent never runs HTML, so data from the
+   internet is always shown safely as plain text.
+   --------------------------------------------------------- */
+function displayPokemon(data) {
+  const card = document.createElement("article");
+  card.className = "pokemon-card";
+
+  // Name (capitalized)
+  const nameEl = document.createElement("h3");
+  nameEl.className = "pokemon-name";
+  nameEl.textContent = capitalizeName(data.name);
+  card.appendChild(nameEl);
+
+  // Sprite image. Some Pokémon have no image, so check first.
+  const spriteUrl = data.sprites && data.sprites.front_default;
+  if (spriteUrl) {
+    const img = document.createElement("img");
+    img.className = "pokemon-sprite";
+    img.src = spriteUrl;
+    img.alt = "Sprite of " + capitalizeName(data.name);
+    img.width = 160;
+    img.height = 160;
+    card.appendChild(img);
+  } else {
+    const noImg = document.createElement("p");
+    noImg.className = "pokemon-no-sprite";
+    noImg.textContent = "No image available.";
+    card.appendChild(noImg);
+  }
+
+  // Types. data.types looks like: [{ type: { name: "grass" } }, ...]
+  const typesList = document.createElement("ul");
+  typesList.className = "pokemon-types";
+  typesList.setAttribute("aria-label", "Types");
+  data.types.forEach(function (item) {
+    const li = document.createElement("li");
+    li.className = "pokemon-type";
+    li.textContent = item.type.name;
+    typesList.appendChild(li);
+  });
+  card.appendChild(typesList);
+
+  // Base stats: HP, Attack, Defense.
+  // A <dl> (description list) pairs each label with its value.
+  const statsList = document.createElement("dl");
+  statsList.className = "pokemon-stats";
+  const statsToShow = [
+    { label: "HP", key: "hp" },
+    { label: "Attack", key: "attack" },
+    { label: "Defense", key: "defense" }
+  ];
+  statsToShow.forEach(function (stat) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "pokemon-stat";
+
+    const dt = document.createElement("dt");
+    dt.textContent = stat.label;
+
+    const dd = document.createElement("dd");
+    dd.textContent = getBaseStat(data.stats, stat.key);
+
+    wrapper.appendChild(dt);
+    wrapper.appendChild(dd);
+    statsList.appendChild(wrapper);
+  });
+  card.appendChild(statsList);
+
+  // Add the finished card to the page (no page reload needed)
+  pokemonResult.appendChild(card);
+}
+
+
+/* ---------------------------------------------------------
+   17c. SEARCH (API REQUEST)
+   "async" lets us use "await", which pauses this function
+   until the network answers, without freezing the page.
+   --------------------------------------------------------- */
+async function searchPokemon() {
+  // Block duplicate requests while one is already running
+  if (isSearching) {
+    return;
+  }
+
+  // Clean up the input: remove spaces at the ends, make it lowercase,
+  // and turn inner spaces into hyphens (the API uses "mr-mime").
+  const name = pokemonInput.value.trim().toLowerCase().replace(/\s+/g, "-");
+
+  // Clear any previous card before showing a new result
+  pokemonResult.innerHTML = "";
+
+  // Validate: do not send an empty search
+  if (name === "") {
+    setPokemonStatus("Please enter a Pokémon name to search.", true);
+    pokemonInput.setAttribute("aria-invalid", "true");
+    pokemonInput.focus();
+    return;
+  }
+  pokemonInput.removeAttribute("aria-invalid");
+
+  // Loading state
+  setLoading(true);
+  setPokemonStatus("Searching Pokémon...", false);
+
+  try {
+    // fetch() sends the request. encodeURIComponent keeps odd characters safe in the URL.
+    const response = await fetch(POKEAPI_URL + encodeURIComponent(name));
+
+    // 404 means the API has no Pokémon with that name
+    if (response.status === 404) {
+      setPokemonStatus("Pokémon not found — check the spelling.", true);
+      return;
+    }
+
+    // Any other non-OK status (e.g. 500) is a problem on the server side
+    if (!response.ok) {
+      setPokemonStatus("The Pokémon server had a problem (error " + response.status + "). Please try again later.", true);
+      return;
+    }
+
+    // JSON parsing: the response body is text in JSON format.
+    // response.json() turns it into a normal JavaScript object.
+    const data = await response.json();
+
+    setPokemonStatus("", false);
+    displayPokemon(data);
+  } catch (error) {
+    // fetch() throws (instead of returning a response) when there is
+    // no connection at all, e.g. Wi-Fi is off or the site is blocked.
+    console.error("Pokémon search failed:", error);
+    setPokemonStatus("Could not connect to the Pokémon database. Check your internet connection and try again.", true);
+  } finally {
+    // "finally" always runs, so the button is re-enabled even after an error
+    setLoading(false);
+  }
+}
+
+
+/* ---------------------------------------------------------
+   17d. EXPLORER EVENT LISTENERS
+   --------------------------------------------------------- */
+pokemonSearchBtn.addEventListener("click", searchPokemon);
+
+// Pressing Enter in the text box also searches
+pokemonInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchPokemon();
+  }
+});
+
+// Remove the red "empty search" border once the player types again
+pokemonInput.addEventListener("input", function () {
+  pokemonInput.removeAttribute("aria-invalid");
+});

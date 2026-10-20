@@ -724,6 +724,124 @@ ol {
 
 
 /* ---------------------------------------------------------
+   13b. KNOWLEDGE EXPLORER - POKEMON EDITION
+   Reuses the card, input, and button styles above.
+   --------------------------------------------------------- */
+.explorer-section {
+  margin-top: var(--space-xl);    /* space between the quiz card and this card */
+}
+
+/* Input and Search button: stacked on phones, side by side at 768px+ */
+.explorer-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Loading / error message under the search box */
+.explorer-status {
+  min-height: 1.6em;              /* reserve space so layout doesn't jump */
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+.explorer-status.is-error {
+  color: #fca5a5;                 /* lighter red for easier reading */
+}
+
+/* Hide the result area while it is empty */
+.pokemon-result:empty {
+  display: none;
+}
+
+/* The Pokémon information card */
+.pokemon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  animation: fade-in 0.35s ease;
+}
+
+.pokemon-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Sprites are tiny pixel art, so scale them up without blurring */
+.pokemon-sprite {
+  width: 160px;
+  height: 160px;
+  image-rendering: pixelated;
+  background: radial-gradient(circle, var(--color-accent-glow) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.pokemon-no-sprite {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Type badges, e.g. "GRASS" "POISON" (same look as the category pill) */
+.pokemon-types {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs);
+  list-style: none;
+}
+
+.pokemon-type {
+  padding: 0.2rem var(--space-sm);
+  background: var(--color-accent-glow);
+  color: var(--color-accent-hover);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* HP / Attack / Defense shown as three stat tiles */
+.pokemon-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+  width: 100%;
+  margin: 0;
+}
+
+.pokemon-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-sm) var(--space-xs);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+
+.pokemon-stat dt {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.pokemon-stat dd {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+
+/* ---------------------------------------------------------
    14. RESPONSIVE BREAKPOINT (768px and wider)
    Tablets and desktops get more space and multi-column grids.
    --------------------------------------------------------- */
@@ -783,6 +901,20 @@ ol {
     width: auto;
     min-width: 220px;
     align-self: center;
+  }
+
+  /* Pokémon search: input and button on one row */
+  .explorer-search {
+    flex-direction: row;
+  }
+
+  .explorer-search .form-input {
+    flex: 1;
+  }
+
+  .explorer-btn {
+    width: auto;
+    min-width: 140px;
   }
 }
 

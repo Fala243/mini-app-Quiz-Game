@@ -215,6 +215,39 @@
       <button type="button" id="play-again-btn" class="btn btn-primary">Play Again</button>
     </section>
 
+    <!-- ---------------------------------------------------------
+         KNOWLEDGE EXPLORER - POKEMON EDITION (always visible)
+         A separate learning tool. It is NOT one of the four quiz
+         screens, so showScreen() never hides it and using it does
+         not interrupt the quiz.
+         --------------------------------------------------------- -->
+    <section id="pokemon-explorer" class="screen explorer-section" aria-labelledby="explorer-heading">
+      <h2 id="explorer-heading" class="screen-heading">Knowledge Explorer &mdash; Pok&eacute;mon Edition</h2>
+      <p class="screen-intro">Look up any Pok&eacute;mon to learn its types and base stats from live data.</p>
+
+      <!-- Search controls: a text box and a Search button -->
+      <div class="explorer-search">
+        <label for="pokemon-input" class="visually-hidden">Pok&eacute;mon name</label>
+        <input
+          type="text"
+          id="pokemon-input"
+          class="form-input"
+          placeholder="Enter a Pokémon name"
+          maxlength="40"
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="pokemon-status"
+        >
+        <button type="button" id="pokemon-search-btn" class="btn btn-primary explorer-btn">Search</button>
+      </div>
+
+      <!-- Loading and error messages. aria-live lets screen readers announce them. -->
+      <p id="pokemon-status" class="explorer-status" role="status" aria-live="polite"></p>
+
+      <!-- JavaScript builds the Pokémon information card inside here -->
+      <div id="pokemon-result" class="pokemon-result"></div>
+    </section>
+
   </main>
 
   <!-- =========================================================
